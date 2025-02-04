@@ -1,0 +1,37 @@
+version: '3.9'
+
+services:
+  frontend:
+    image: ghcr.io/kooemmanuel/deepdeeklens:latest
+    platform: linux/amd64
+    ports:
+      - "3000:3000"
+    environment:
+      NEXT_PUBLIC_API_URL: http://backend:8000/api
+      OLLAMA_URL: http://host.docker.internal:11434
+    networks:
+      - app_network
+    depends_on:
+      - backend
+
+  backend:
+    image: ghcr.io/kooemmanuel/deepdeeklens-backend:latest
+    build: 
+      context: ./backend
+      dockerfile: Dockerfile
+    platform: linux/amd64
+    ports:
+      - "8000:8000"
+    environment:
+      DATABASE_URL: sqlite:///./app.db
+      OLLAMA_URL: http://host.docker.internal:11434
+      FRONTEND_URL: http://frontend:3000
+    volumes:
+      - ./backend/app.db:/app/app.db
+      - ./backend/chroma_db:/app/chroma_db
+    networks:
+      - app_network
+
+networks:
+  app_network:
+    driver: bridge 

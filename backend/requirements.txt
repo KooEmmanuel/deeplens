@@ -1,0 +1,16 @@
+fastapi
+uvicorn
+chromadb
+langchain
+python-multipart
+python-dotenv
+sqlalchemy
+pydantic
+langchain-community
+langchain-openai
+sentence-transformers
+pypdf
+python-docx
+docx2txt
+unstructured
+langgraph>=0.0.10 
