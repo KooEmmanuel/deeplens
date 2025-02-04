@@ -26,9 +26,7 @@ services:
       DATABASE_URL: sqlite:///./app.db
       OLLAMA_URL: http://host.docker.internal:11434
       FRONTEND_URL: http://frontend:3000
-    volumes:
-      - ./backend/app.db:/app/app.db
-      - ./backend/chroma_db:/app/chroma_db
+    
     networks:
       - app_network
 
