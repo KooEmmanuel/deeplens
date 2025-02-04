@@ -2,7 +2,7 @@
 
 # Build and push the frontend image
 echo "Building frontend image..."
-docker build --platform linux/amd64 -t ghcr.io/kooemmanuel/deepdeeklens:latest -f deepseek/Dockerfile deepseek/
+docker build --platform linux/amd64 -t ghcr.io/kooemmanuel/deepdeeklens:latest -f frontend/Dockerfile frontend/
 echo "Pushing frontend image..."
 docker push ghcr.io/kooemmanuel/deepdeeklens:latest
 
