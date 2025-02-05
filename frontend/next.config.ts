@@ -10,6 +10,8 @@ const nextConfig: NextConfig = {
       'chromadb': 'chromadb'
     }];
 
+    
+
     // Ignore .node files completely
     config.module.noParse = /\.node$/;
     
@@ -39,7 +41,19 @@ const nextConfig: NextConfig = {
   },
   typescript: {
     ignoreBuildErrors: true,
-  }
+  },
+  // Add this to disable static page generation
+  output: 'standalone',
+  experimental: {
+    // Disable static page optimization
+    workerThreads: false,
+    cpus: 1
+  },
+  // Add this to force dynamic rendering
+  staticPageGenerationTimeout: 60,
+  generateEtags: false,
+  pageExtensions: ['tsx', 'ts'],
+  reactStrictMode: false
 };
 
 export default nextConfig;

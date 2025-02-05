@@ -1,4 +1,5 @@
-import type { Metadata } from "next";
+"use client";
+
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "react-hot-toast";
@@ -18,11 +19,6 @@ const playfair = Playfair_Display({
   subsets: ['latin'],
   variable: '--font-playfair',
 });
-
-export const metadata: Metadata = {
-  title: "DeepSeek Document Analyzer",
-  description: "Upload and analyze documents using AI",
-};
 
 export default function RootLayout({
   children,

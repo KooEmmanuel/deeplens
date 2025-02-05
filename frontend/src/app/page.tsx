@@ -15,8 +15,8 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import Image from 'next/image';
 import { NEXT_PUBLIC_API_URL } from "@/lib/config";
-import { DocumentCanvas } from '@/components/DocumentCanvas';
 import EditorJS from '@editorjs/editorjs';
+import dynamic from "next/dynamic";
 
 type Message = {
   role: string;
@@ -31,6 +31,11 @@ const getLocalStorage = () => {
   }
   return null;
 };
+
+const DocumentCanvas = dynamic(
+  () => import('@/components/DocumentCanvas').then((mod) => mod.DocumentCanvas),
+  { ssr: false }
+);
 
 export default function Home() {
   const [messages, setMessages] = useState<Message[]>([]);
