@@ -69,7 +69,7 @@ To utilize the deep analysis capabilities provided by the deepseek model, you mu
 2. **Pull the Deepseek Model:**  
    Once Ollama is installed, open a terminal and run:
    ```bash
-   ollama pull deepseek-r1:1.5b
+   ollama run deepseek-r1:1.5b
    ```
    This command downloads the required deepseek model for document analysis.
 
