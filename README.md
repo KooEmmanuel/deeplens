@@ -99,6 +99,15 @@ cd deeplens
 4. **Download Docker Compose File:**  
    You can also download the `docker-compose.yml` file from the repository and run the above commands to quickly spin up the application.
 
+5. **Alternatively, Deploy with Pre-Built Images:**  
+   If you prefer not to rebuild the images, simply download the `docker-compose.yml` file and run:
+   
+   ```bash
+   docker-compose up
+   ```
+   
+   This command will pull and run the already built Docker images, providing you with a fast way to get started.
+
 ### Ollama Model Setup
 
 1. **Download and Install Ollama:**  
