@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, DateTime, ForeignKey
+from sqlalchemy import Column, Integer, String, DateTime, ForeignKey, Text
 from sqlalchemy.orm import relationship
 from database import Base
 import datetime
@@ -22,7 +22,8 @@ class Message(Base):
 
 class Document(Base):
     __tablename__ = "documents"
-
+    
     id = Column(Integer, primary_key=True, index=True)
-    name = Column(String, unique=True, index=True)
+    content = Column(Text)
+    updated_at = Column(DateTime, default=datetime.datetime.utcnow, onupdate=datetime.datetime.utcnow)
     created_at = Column(DateTime, default=datetime.datetime.utcnow) 

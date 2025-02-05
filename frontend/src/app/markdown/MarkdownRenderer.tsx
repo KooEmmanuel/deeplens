@@ -1,3 +1,4 @@
+import React from "react";
 import ReactMarkdown, { Components } from 'react-markdown';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { atomDark } from 'react-syntax-highlighter/dist/cjs/styles/prism';
@@ -24,7 +25,7 @@ const tableToCSV = (table: HTMLTableElement): string => {
     .join('\n');
 };
 
-export const MarkdownRenderer = ({ content, className = '', isUser = false }: MarkdownRendererProps) => {
+export function MarkdownRenderer({ content, className = '', isUser = false }: MarkdownRendererProps) {
   return (
     <ReactMarkdown
       remarkPlugins={[remarkGfm]}
@@ -143,8 +144,9 @@ export const MarkdownRenderer = ({ content, className = '', isUser = false }: Ma
         ),
 
       }}
+      skipHtml
     >
       {content}
     </ReactMarkdown>
   );
-}; 
+} 

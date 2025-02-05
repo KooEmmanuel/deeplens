@@ -9,6 +9,18 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@alkhipce/editorjs-aitext": "^1.2.0",
+    "@editorjs/checklist": "^1.6.0",
+    "@editorjs/code": "^2.9.3",
+    "@editorjs/delimiter": "^1.4.2",
+    "@editorjs/editorjs": "^2.30.8",
+    "@editorjs/header": "^2.8.8",
+    "@editorjs/list": "^2.0.4",
+    "@editorjs/marker": "^1.4.0",
+    "@editorjs/paragraph": "^2.11.7",
+    "@editorjs/quote": "^2.7.6",
+    "@editorjs/simple-image": "^1.6.0",
+    "@editorjs/table": "^2.4.3",
     "@langchain/cohere": "^0.3.2",
     "@langchain/community": "^0.3.28",
     "@langchain/openai": "^0.4.2",
