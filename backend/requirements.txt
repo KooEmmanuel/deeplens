@@ -13,4 +13,5 @@ pypdf
 python-docx
 docx2txt
 unstructured
-langgraph>=0.0.10 
+langgraph>=0.0.10
+alembic>=1.7.7 

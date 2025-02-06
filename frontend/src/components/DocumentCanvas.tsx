@@ -14,6 +14,9 @@ import SimpleImage from '@editorjs/simple-image';
 import AIText from '@alkhipce/editorjs-aitext';
 import { Download } from 'lucide-react';
 import { NEXT_PUBLIC_API_URL } from "@/lib/config";
+import pdfMake from 'pdfmake/build/pdfmake';
+import 'pdfmake/build/vfs_fonts';  // Just import for side effects
+import { TDocumentDefinitions, Style } from 'pdfmake/interfaces';
 
 interface DocumentCanvasProps {
   isOpen: boolean;
@@ -238,101 +241,102 @@ export function DocumentCanvas({ isOpen, onResize }: DocumentCanvasProps) {
     };
   }, [isResizing, onResize]);
 
-  const convertEditorJSToHTML = (data: any): string => {
-    let htmlContent = "";
+  const convertEditorJSToDocDefinition = (data: any): TDocumentDefinitions => {
+    const content: any[] = [];
 
     data.blocks.forEach((block: any) => {
       switch (block.type) {
         case "header":
-          const level = block.data.level || 1;
-          htmlContent += `<h${level}>${block.data.text}</h${level}>`;
+          content.push({
+            text: block.data.text,
+            style: `header${block.data.level}`,
+            margin: [0, 10, 0, 5]
+          });
           break;
         case "paragraph":
-          htmlContent += `<p>${block.data.text}</p>`;
+          content.push({
+            text: block.data.text,
+            margin: [0, 5, 0, 5]
+          });
           break;
         case "list":
-          {
-            // Use an ordered or unordered list based on block.data.style (assumed)
-            const listTag = block.data.style === "ordered" ? "ol" : "ul";
-            htmlContent += `<${listTag}>`;
-            block.data.items.forEach((item: string) => {
-              htmlContent += `<li>${item}</li>`;
-            });
-            htmlContent += `</${listTag}>`;
-          }
+          const items = block.data.items.map((item: string) => item);
+          content.push({
+            ul: items,
+            margin: [0, 5, 0, 5]
+          });
           break;
         case "checklist":
-          {
-            htmlContent += `<ul>`;
-            block.data.items.forEach((item: any) => {
-              const checkMark = item.checked ? "✓ " : "";
-              htmlContent += `<li>${checkMark}${item.text}</li>`;
-            });
-            htmlContent += `</ul>`;
-          }
+          const checklistItems = block.data.items.map((item: any) => 
+            `${item.checked ? '☑' : '☐'} ${item.text}`
+          );
+          content.push({
+            ul: checklistItems,
+            margin: [0, 5, 0, 5]
+          });
           break;
         case "quote":
-          htmlContent += `<blockquote>${block.data.text}<br><em>${block.data.caption || ""}</em></blockquote>`;
+          content.push({
+            text: block.data.text,
+            style: 'blockquote',
+            margin: [20, 5, 20, 5]
+          });
+          if (block.data.caption) {
+            content.push({
+              text: `— ${block.data.caption}`,
+              style: 'caption',
+              margin: [20, 0, 20, 5]
+            });
+          }
           break;
         case "code":
-          htmlContent += `<pre><code>${block.data.code}</code></pre>`;
+          content.push({
+            text: block.data.code,
+            style: 'code',
+            margin: [0, 5, 0, 5]
+          });
           break;
         case "table":
-          htmlContent += `<table style="border-collapse: collapse;" border="1">`;
-          block.data.content.forEach((row: any[]) => {
-            htmlContent += `<tr>`;
-            row.forEach((cell: any) => {
-              htmlContent += `<td style="padding:8px;">${cell}</td>`;
-            });
-            htmlContent += `</tr>`;
+          content.push({
+            table: {
+              body: block.data.content
+            },
+            margin: [0, 5, 0, 5]
           });
-          htmlContent += `</table>`;
           break;
         case "delimiter":
-          htmlContent += `<hr />`;
+          content.push({
+            text: '* * *',
+            alignment: 'center',
+            margin: [0, 10, 0, 10]
+          });
           break;
-        case "simpleImage":
-          htmlContent += `<img src="${block.data.url}" alt="${block.data.caption || ""}" style="max-width:100%;" />`;
-          break;
-        default:
-          console.warn("Unsupported block type", block.type);
       }
-      htmlContent += "\n";
     });
 
-    // Wrap the content in a basic HTML structure
-    const fullHtml = `
-      <!DOCTYPE html>
-      <html>
-      <head>
-          <meta charset="UTF-8">
-          <title>Document</title>
-          <style>
-            body { font-family: Arial, sans-serif; line-height: 1.6; }
-            table { width: 100%; margin: 10px 0; }
-            th, td { padding: 8px; border: 1px solid #ddd; }
-          </style>
-      </head>
-      <body>
-        ${htmlContent}
-      </body>
-      </html>
-    `;
-    return fullHtml;
+    return {
+      content,
+      styles: {
+        header1: { fontSize: 24, bold: true } as Style,
+        header2: { fontSize: 20, bold: true } as Style,
+        header3: { fontSize: 16, bold: true } as Style,
+        blockquote: { italics: true, margin: [20, 0, 20, 0] } as Style,
+        caption: { italics: true, fontSize: 12 } as Style,
+        code: { font: 'Courier', background: '#f5f5f5', padding: 5 } as Style
+      },
+      defaultStyle: {
+        fontSize: 12,
+        font: 'Helvetica'
+      }
+    };
   };
 
   const handleDownload = async () => {
     if (!editorRef.current) return;
     try {
       const savedData = await editorRef.current.save();
-      const html = convertEditorJSToHTML(savedData);
-      const blob = new Blob([html], { type: 'text/html' });
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = 'document.html'; // Now downloading an HTML file
-      a.click();
-      window.URL.revokeObjectURL(url);
+      const docDefinition = convertEditorJSToDocDefinition(savedData);
+      pdfMake.createPdf(docDefinition).download('document.pdf');
     } catch (error) {
       console.error("Download failed:", error);
     }

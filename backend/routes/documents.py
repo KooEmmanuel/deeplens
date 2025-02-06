@@ -171,21 +171,37 @@ async def get_documents():
 
 @router.delete("/documents/{name}")
 async def delete_document(name: str):
-    collections = client.list_collections()
-    deleted_count = 0
-    
-    for collection in collections:
-        coll = client.get_collection(collection.name)
-        results = coll.get()
-        indices_to_delete = [
-            results["ids"][i] for i, meta in enumerate(results["metadatas"])
-            if meta["documentName"] == name
-        ]
-        if indices_to_delete:
-            coll.delete(ids=indices_to_delete)
-            deleted_count += len(indices_to_delete)
-    
-    return {"success": True, "message": f"Deleted {deleted_count} documents"}
+    try:
+        # Get list of collection names
+        collection_names = client.list_collections()
+        deleted_count = 0
+        
+        for coll_name in collection_names:
+            try:
+                # Get collection by name
+                coll = client.get_collection(name=coll_name)
+                results = coll.get()
+                
+                # Find documents to delete
+                indices_to_delete = [
+                    results["ids"][i] for i, meta in enumerate(results["metadatas"])
+                    if meta["documentName"] == name
+                ]
+                
+                # Delete if any matches found
+                if indices_to_delete:
+                    coll.delete(ids=indices_to_delete)
+                    deleted_count += len(indices_to_delete)
+                    
+            except Exception as e:
+                print(f"Error processing collection {coll_name}: {str(e)}")
+                continue
+        
+        return {"success": True, "message": f"Deleted {deleted_count} documents"}
+        
+    except Exception as e:
+        print(f"Delete error: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
 
 class DocumentContent(BaseModel):
     blocks: list

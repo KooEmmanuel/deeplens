@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { Upload, Send, FileText, Menu, X, MoreVertical, Trash2, Copy, Download, ChevronDown, ChevronUp, Settings, MessageSquare, Plus, LayoutPanelLeft, FileInput, PanelRightOpen } from "lucide-react";
+import { Upload, Send, FileText, Menu, X, MoreVertical, Trash2, Copy, Download, ChevronDown, ChevronUp, Settings, MessageSquare, Plus, LayoutPanelLeft, FileInput, PanelRightOpen, Eye, EyeOff } from "lucide-react";
 import { useDropzone } from "react-dropzone";
 import toast from "react-hot-toast";
 import TextareaAutosize from 'react-textarea-autosize';
@@ -37,6 +37,9 @@ const DocumentCanvas = dynamic(
   { ssr: false }
 );
 
+// Define the loadDocuments helper at the top level of your Home component
+
+
 export default function Home() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [loading, setLoading] = useState(false);
@@ -61,6 +64,7 @@ export default function Home() {
   const [showCanvas, setShowCanvas] = useState(false);
   const [canvasWidth, setCanvasWidth] = useState(600);
   const editorRef = useRef<EditorJS | null>(null);
+  const [showApiKey, setShowApiKey] = useState(false);
 
   const initialPrompts = [
     {
@@ -80,6 +84,20 @@ export default function Home() {
       prompt: "What are some important questions I should ask about this content?"
     }
   ];
+
+  async function loadDocuments() {
+    try {
+      const response = await fetch(`${NEXT_PUBLIC_API_URL}/documents`);
+      if (!response.ok) {
+        throw new Error('Failed to fetch documents');
+      }
+      const data = await response.json();
+      setDocuments(Array.isArray(data) ? data : []);
+    } catch (error) {
+      console.error('Failed to load documents:', error);
+      setDocuments([]);
+    }
+  }
 
   const handleFileUpload = async (acceptedFiles: File[]) => {
     try {
@@ -113,12 +131,14 @@ export default function Home() {
       // If we're in the documents tab, switch to it
       setActiveTab('documents');
       
+      
     } catch (error) {
       console.error("Upload error:", error);
       toast.error("Failed to upload document");
     } finally {
       setUploadLoading(false);
       setUploadProgress(null);
+      loadDocuments();
     }
   };
 
@@ -384,6 +404,14 @@ export default function Home() {
       console.log('Inserting content:', content);
     } else {
       console.error('Insert handler not available');
+    }
+  };
+
+  const handleClearApiKey = () => {
+    setApiKey('');
+    const storage = getLocalStorage();
+    if (storage) {
+      storage.removeItem('openai_api_key');
     }
   };
 
@@ -834,13 +862,31 @@ export default function Home() {
             <div className="space-y-4 p-4">
               <div className="space-y-2">
                 <label className="text-sm text-zinc-400">OpenAI API Key</label>
-                <Input
-                  type="password"
-                  value={apiKey || (getLocalStorage()?.getItem('openai_api_key') || '')}
-                  onChange={(e) => setApiKey(e.target.value)}
-                  className="bg-zinc-800 border-zinc-700 text-white"
-                  placeholder="sk-..."
-                />
+                <div className="relative">
+                  <Input
+                    type={showApiKey ? "text" : "password"}
+                    value={apiKey}
+                    onChange={(e) => setApiKey(e.target.value)}
+                    className="bg-zinc-800 border-zinc-700 text-white pr-20"
+                    placeholder="sk-..."
+                  />
+                  <div className="absolute right-2 top-1/2 -translate-y-1/2 flex gap-2">
+                    <button
+                      onClick={() => setShowApiKey(!showApiKey)}
+                      className="p-2 text-zinc-400 hover:text-zinc-200"
+                      title={showApiKey ? "Hide API Key" : "Show API Key"}
+                    >
+                      {showApiKey ? <Eye size={16} /> : <EyeOff size={16} />}
+                    </button>
+                    <button
+                      onClick={handleClearApiKey}
+                      className="p-2 text-zinc-400 hover:text-zinc-200"
+                      title="Clear API Key"
+                    >
+                      <X size={16} />
+                    </button>
+                  </div>
+                </div>
               </div>
               <div className="space-y-2">
                 <label className="text-sm text-zinc-400">Model Selection</label>
@@ -848,7 +894,7 @@ export default function Home() {
                   <SelectTrigger className="bg-zinc-800 border-zinc-700 text-white">
                     <SelectValue placeholder="Select model" />
                   </SelectTrigger>
-                  <SelectContent className="bg-zinc-800 border-zinc-700">
+                  <SelectContent className="bg-zinc-800 border-zinc-700 text-white">
                     <SelectItem value="deepseek-r1">Deepseek R1</SelectItem>
                     <SelectItem value="deepseek-r1:1.5b">Deepseek R1 1.5B</SelectItem>
                     <SelectItem value="qwen">Qwen 4B</SelectItem>
