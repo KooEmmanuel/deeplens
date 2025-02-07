@@ -1,6 +1,7 @@
 # DeepLens
 
 DeepLens is an advanced application designed to empower users with deep research capabilities over their local documents. Leveraging both a custom deepseek model and powerful conversational models, DeepLens analyzes your files to extract summaries, key topics, and insightful questions. With an intuitive user interface, you can upload files, chat with the AI, and now even visually edit your document content using the new Canvas Editor.
+                                      <img width="1000" alt="Screenshot 2025-02-06 at 11 42 37 PM" src="https://github.com/user-attachments/assets/a97981a7-3d14-4ccd-87d1-43ce06177b01" />
 
 ## Table of Contents
 
